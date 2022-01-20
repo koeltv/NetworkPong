@@ -1,86 +1,93 @@
 package com.client;
 
-import java.net.*;
-import java.io.*;
+import com.server.Server;
 
-public class Client {
-	private static final Window fen = new Window();
-	private static String move = "2";
-	public final static boolean joue = true;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
-	//Function to simplify writing text in the console
-	private static synchronized void println(String str) {
-		System.err.println(str);
-	}
+public class Client extends Window implements Runnable {
+	public static final boolean joue = true;
+
+	private final InetAddress localhost;
 
 	//Function to verify if the key is pressed
-	static void sendData(String value) {
-		move = value;
+	void sendData(String value) {
+		try {
+			DatagramSocket client = new DatagramSocket();
+			byte[] buffer = value.getBytes();
+
+			//We create a datagram
+			DatagramPacket packet = new DatagramPacket(buffer, buffer.length, localhost, Server.PORT);
+			//We affect the data to send and send it to the server
+			System.out.println("Sending \"" + value + "\"");
+			client.send(packet);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
-	//Function to stop the sound
-	static void switchSoundState(){
-		fen.switchSoundState();
-	}
+	Client() {
+		super();
 
-	//fonction qui permet d'envoyer les informations et de les recevoir
-	public static class UDPClient implements Runnable {
-		private static final int port = 9876;
+		InetAddress localhost1;
+		try {
+			localhost1 = InetAddress.getByName("localhost");
+		} catch (UnknownHostException e) {
+			localhost1 = null;
+			e.printStackTrace();
+		}
+		localhost = localhost1;
 
-		@Override
-		public void run() {
-			try {
-				DatagramSocket client = new DatagramSocket();
-				while (!Thread.interrupted()) {
-					//définition de la valeur à envoyer
-					String envoi = move;
-					byte[] buffer;
-					String example = envoi + "-1";
-					buffer = example.getBytes();
-					sendData("2");
-
-					//We create a datagram
-					InetAddress adresse = InetAddress.getByName("localhost");
-					DatagramPacket packet = new DatagramPacket(buffer, buffer.length, adresse, port);
-					//We affect the data to send and send it to the server
-					packet.setData(buffer);
-					client.send(packet);
-
-					if(joue) {
-						//We wait for the server answer
-						byte[] buffer2 = new byte[128];
-						DatagramPacket packet2 = new DatagramPacket(buffer2, buffer2.length, adresse, port);
-						client.receive(packet2);
-						println("Action : " + envoi + " || Server answer : " + new String(packet2.getData()));
-
-						//We de-format the answer
-						String message= new String(packet2.getData());
-						String[] cal = message.split("-");
-
-						//We assign the right part to the corresponding variable
-						int yJ = Integer.parseInt(cal[0]);
-						int yA = Integer.parseInt(cal[1]);
-						int xBall = Integer.parseInt(cal[2]);
-						int yBall = Integer.parseInt(cal[3]);
-						int scoreJ = Integer.parseInt(cal[4]);
-						int scoreA = Integer.parseInt(cal[5]);
-						fen.getPanneau().setPosYJ(yJ);
-						fen.getPanneau().setXBall(xBall);
-						fen.getPanneau().setYBall(yBall);
-						fen.getPanneau().setPosYA(yA);
-						fen.getPanneau().setScoreJ(scoreJ);
-						fen.getPanneau().setScoreA(scoreA);
-					}
-					fen.getPanneau().repaint();
+		this.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				switch (e.getKeyCode()) {
+					case KeyEvent.VK_UP -> sendData("0");
+					case KeyEvent.VK_DOWN -> sendData("1");
+					case KeyEvent.VK_M -> switchSoundState();
 				}
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
+		});
+	}
+
+	@Override
+	public void run() {
+		try {
+			while (!Thread.interrupted()) {
+				if (joue) {
+					DatagramSocket client = new DatagramSocket();
+					//We wait for the server answer
+					byte[] buffer2 = new byte[128];
+					DatagramPacket packet = new DatagramPacket(buffer2, buffer2.length, localhost, Server.PORT);
+					client.receive(packet);
+					System.err.println("Server answer : " + new String(packet.getData()));
+
+					//We de-format the answer
+					String message= new String(packet.getData());
+					String[] cal = message.split("-");
+
+					//We assign the right part to the corresponding variable
+					getPanneau().setPosYJ(Integer.parseInt(cal[0]));
+					getPanneau().setPosYA(Integer.parseInt(cal[1]));
+					getPanneau().setXBall(Integer.parseInt(cal[2]));
+					getPanneau().setYBall(Integer.parseInt(cal[3]));
+					getPanneau().setScoreJ(Integer.parseInt(cal[4]));
+					getPanneau().setScoreA(Integer.parseInt(cal[5]));
+				}
+				getPanneau().repaint();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
 	public static void main(String[] args) {
-		Thread client = new Thread(new UDPClient());
+		Thread client = new Thread(new Client());
 		client.start();
 	}
 }

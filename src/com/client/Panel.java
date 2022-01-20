@@ -1,19 +1,31 @@
 package com.client;
 
+import com.Ball;
+import com.Player;
+
 import java.awt.*;
 import javax.swing.JPanel;
 
-public class Panneau extends JPanel {
+public class Panel extends JPanel {
     //Defining base position of components
-    final Font font = new Font("Courier", Font.BOLD, 40);
-    private int posYJ = 287, xBall = 700, yBall = 375, posYA = 287, scoreJ = 0, scoreA = 0, posXLog = 830, posYLog = 500;
+    private static final Font font = new Font("Courier", Font.BOLD, 40);
+
+    private final Player[] players = new Player[2];
+    private final Ball ball = new Ball();
+
+    private final int MAX_SCORE = 10;
+
+    private int posXLog = 830, posYLog = 500;
     private final Color lightYellow = new Color(226, 222, 50);
     boolean logo = true;
 
+    Panel() {
+        players[0] = new Player();
+        players[1] = new Player();
+    }
+
     @Override
     public void paintComponent(Graphics g) {
-        int scoreMax = 10;
-
         if (logo) {
             super.paintComponent(g);
             Image image = getToolkit().getImage("data/loup.png");
@@ -22,50 +34,52 @@ public class Panneau extends JPanel {
             g.fillOval(posXLog, posYLog, 25, 25);
         } else if (Client.joue) {
             super.paintComponent(g);
-            g.setColor(Color.white);
-            g.fillRect(0, 0, this.getWidth(), this.getHeight());
-            g.setColor(Color.black);
-            g.fillRect(20, posYJ, 25, 180);
-            g.fillRect(1440, posYA, 25, 180);
-            g.setColor(Color.red);
-            g.fillOval(xBall, yBall, 50, 50);
-            g.setFont(font);
-            g.setColor(Color.black);
 
-            g.drawString(scoreJ + " : " + scoreA, 680, 30);
+            g.setColor(Color.white);
+            g.fillRect(0, 0, this.getWidth(), this.getHeight());
+
+            g.setColor(Color.red);
+            g.fillOval(ball.x, ball.y, 50, 50);
+
+            g.setColor(Color.black);
+            g.fillRect(20, players[0].y, Player.WIDTH, Player.HEIGHT);
+            g.fillRect(1440, players[1].y, Player.WIDTH, Player.HEIGHT);
+
+            g.setFont(font);
+            g.drawString(players[0].score + " : " + players[1].score, 680, 30);
         }
-        if ((scoreA >= scoreMax) || (scoreJ >= scoreMax)) {
+        if ((players[0].score >= MAX_SCORE) || (players[1].score >= MAX_SCORE)) {
             g.setColor(Color.white);
             g.fillRect(0, 0, this.getWidth(), this.getHeight());
             g.setFont(font);
             g.setColor(Color.black);
-            g.drawString("Bravo, vous avez bien joué!", 455, 375);
-            g.drawString(scoreJ + " : " + scoreA, 680, 30);
+            g.drawString("Congratulation, you played well!", 455, 375);
+            g.drawString(players[0].score + " : " + players[1].score, 680, 30);
         }
     }
 
     void setPosYJ(int posYJ) {
-        this.posYJ = Math.max(posYJ, 0);
+        this.players[0].y = Math.max(posYJ, 0);
     }
 
     void setXBall(int xBall) {
-        this.xBall = xBall;
+        this.ball.x = xBall;
     }
 
     void setYBall(int yBall) {
-        this.yBall = yBall;
+        this.ball.y = yBall;
     }
 
     void setPosYA(int posYA) {
-        this.posYA = posYA;
+        this.players[1].y = posYA;
     }
 
     void setScoreJ(int scoreJ) {
-        this.scoreJ = scoreJ;
+        this.players[0].score = scoreJ;
     }
 
     void setScoreA(int scoreA) {
-        this.scoreA = scoreA;
+        this.players[1].score = scoreA;
     }
 
     int getPosXLog() {
