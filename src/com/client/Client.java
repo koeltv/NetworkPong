@@ -13,19 +13,19 @@ import java.net.UnknownHostException;
 public class Client extends Window implements Runnable {
 	public static final boolean joue = true;
 
-	private final InetAddress localhost;
+	private final InetAddress serverAddress;
 
 	//Function to verify if the key is pressed
 	void sendData(String value) {
 		try {
-			DatagramSocket client = new DatagramSocket();
+			DatagramSocket socket = new DatagramSocket();
 			byte[] buffer = value.getBytes();
 
 			//We create a datagram
-			DatagramPacket packet = new DatagramPacket(buffer, buffer.length, localhost, Server.PORT);
+			DatagramPacket packet = new DatagramPacket(buffer, buffer.length, serverAddress, Server.PORT);
 			//We affect the data to send and send it to the server
 			System.out.println("Sending \"" + value + "\"");
-			client.send(packet);
+			socket.send(packet);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -41,7 +41,7 @@ public class Client extends Window implements Runnable {
 			localhost1 = null;
 			e.printStackTrace();
 		}
-		localhost = localhost1;
+		serverAddress = localhost1;
 
 		this.addKeyListener(new KeyAdapter() {
 			@Override
@@ -60,16 +60,15 @@ public class Client extends Window implements Runnable {
 		try {
 			while (!Thread.interrupted()) {
 				if (joue) {
-					DatagramSocket client = new DatagramSocket();
+					DatagramSocket socket = new DatagramSocket();
 					//We wait for the server answer
-					byte[] buffer2 = new byte[128];
-					DatagramPacket packet = new DatagramPacket(buffer2, buffer2.length, localhost, Server.PORT);
-					client.receive(packet);
+					byte[] buffer = new byte[128];
+					DatagramPacket packet = new DatagramPacket(buffer, buffer.length, serverAddress, Server.PORT);
+					socket.receive(packet);
 					System.err.println("Server answer : " + new String(packet.getData()));
 
 					//We de-format the answer
-					String message= new String(packet.getData());
-					String[] cal = message.split("-");
+					String[] cal = new String(packet.getData()).split("-");
 
 					//We assign the right part to the corresponding variable
 					getPanneau().setPosYJ(Integer.parseInt(cal[0]));

@@ -7,6 +7,7 @@ class Window extends JFrame {
     private Audio audio = new Audio();
 
     Window() {
+        super();
         this.setTitle("PONG");
         this.setResizable(false);
         this.setSize(1500, 800);

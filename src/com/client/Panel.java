@@ -2,6 +2,7 @@ package com.client;
 
 import com.Ball;
 import com.Player;
+import com.server.Server;
 
 import java.awt.*;
 import javax.swing.JPanel;
@@ -12,8 +13,6 @@ public class Panel extends JPanel {
 
     private final Player[] players = new Player[2];
     private final Ball ball = new Ball();
-
-    private final int MAX_SCORE = 10;
 
     private int posXLog = 830, posYLog = 500;
     private final Color lightYellow = new Color(226, 222, 50);
@@ -48,7 +47,7 @@ public class Panel extends JPanel {
             g.setFont(font);
             g.drawString(players[0].score + " : " + players[1].score, 680, 30);
         }
-        if ((players[0].score >= MAX_SCORE) || (players[1].score >= MAX_SCORE)) {
+        if ((players[0].score >= Server.MAX_SCORE) || (players[1].score >= Server.MAX_SCORE)) {
             g.setColor(Color.white);
             g.fillRect(0, 0, this.getWidth(), this.getHeight());
             g.setFont(font);

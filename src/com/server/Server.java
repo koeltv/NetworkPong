@@ -10,6 +10,8 @@ import java.util.Arrays;
 public class Server extends JFrame{
 	public static final int PORT = 9876;
 
+	public static final int MAX_SCORE = 10;
+
 	private int currentPlayerCount;
 
 	private final ServerBall ball = new ServerBall();
