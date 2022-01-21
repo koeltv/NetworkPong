@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.io.IOException;
 import java.net.*;
 import java.util.Arrays;
+import java.util.Enumeration;
 
 /**
  * The type Server.
@@ -51,7 +52,7 @@ public class Server extends JFrame{
 		this.setResizable(false);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		JLabel label = new JLabel(String.valueOf(InetAddress.getLocalHost()));
+		JLabel label = new JLabel("Local IP : " + getPublicIpAddress());
 		this.getContentPane().add(label);
 
 		//Creation of the server side connexion while specifying which port to use
@@ -60,6 +61,35 @@ public class Server extends JFrame{
 
 		this.pack();
 		this.setVisible(true);
+	}
+
+	/**
+	 * Gets public ip address.
+	 * @see <a href="https://stackoverflow.com/questions/20714276/how-to-get-only-public-ip-addresses-in-java">source</a>
+	 *
+	 * @return the public ip address
+	 */
+	private String getPublicIpAddress() {
+		try {
+			String localhost = InetAddress.getLocalHost().getHostAddress();
+			Enumeration<NetworkInterface> e = NetworkInterface.getNetworkInterfaces();
+			while (e.hasMoreElements()) {
+				NetworkInterface ni = e.nextElement();
+				if(ni.isLoopback()) continue;
+				if(ni.isPointToPoint()) continue;
+				Enumeration<InetAddress> addresses = ni.getInetAddresses();
+				while(addresses.hasMoreElements()) {
+					InetAddress address = addresses.nextElement();
+					if(address instanceof Inet4Address) {
+						String ip = address.getHostAddress();
+						if(!ip.equals(localhost)) return ip;
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**
@@ -95,6 +125,7 @@ public class Server extends JFrame{
 					players[0].score++;
 					ball.reset();
 				}
+
 				//High and low limits
 				if(ball.y <= 5) {
 					ball.ySpeed = -ball.ySpeed;
@@ -137,7 +168,10 @@ public class Server extends JFrame{
 			//Usage of user input
 			int mouvement = Integer.parseInt(new String(packet.getData()));
 
-			ServerPlayer player = Arrays.stream(players).filter(player3 -> player3.isAddressIdentical(packet.getAddress())).findAny().orElse(null);
+			ServerPlayer player = Arrays.stream(players)
+					.filter(player3 -> player3.isAddressIdentical(packet.getAddress()))
+					.findAny().orElse(null);
+
 			if (player != null) {
 				switch (mouvement) {
 					case 0 -> player.y -= 10;

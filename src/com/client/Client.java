@@ -31,7 +31,7 @@ public class Client extends Window implements Runnable {
 
 		String input = JOptionPane.showInputDialog(
 				"Enter server IP address",
-				"Server IP"
+				"192.168.X.X"
 		);
 		if (input == null) System.exit(0);
 		serverAddress = InetAddress.getByName(input);
@@ -110,6 +110,7 @@ public class Client extends Window implements Runnable {
 			client.start();
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
+			System.exit(0);
 		}
 	}
 }
