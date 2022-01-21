@@ -43,6 +43,8 @@ public class Server extends JFrame{
 
 	/**
 	 * Instantiates a new Server.
+	 *
+	 * @throws IOException if the port couldn't be used
 	 */
 	private Server() throws IOException {
 		this.setTitle("Server");
