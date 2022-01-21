@@ -3,6 +3,9 @@ package com.client;
 import  java.io.*;
 import javax.sound.sampled.*;
 
+/**
+ * The type Audio.
+ */
 public class Audio extends Thread{
 
 	@Override

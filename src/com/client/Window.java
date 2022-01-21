@@ -2,10 +2,23 @@ package com.client;
 
 import javax.swing.*;
 
+/**
+ * The graphical Window.
+ */
 class Window extends JFrame {
-	private final Panel panel = new Panel();
+	/**
+	 * The Panel.
+	 */
+	final Panel panel = new Panel();
+
+	/**
+	 * The Audio.
+	 */
 	Audio audio = new Audio();
 
+	/**
+	 * Instantiates a new Window.
+	 */
 	Window() {
 		super();
 		this.setTitle("PONG");
@@ -17,36 +30,9 @@ class Window extends JFrame {
 		this.setVisible(true);
 	}
 
-	void displayLogo() {
-		int x = panel.getPosXLog(), y = panel.getPosYLog();
-		while (y < 501) {
-			if (x > 780) {
-				x -= 1;
-				y -= 4;
-			} else if (x > 630) {
-				x -= 4;
-			} else {
-				x -= 1;
-				y += 4;
-			}
-			panel.setPosXLog(x);
-			panel.setPosYLog(y);
-			panel.repaint();
-			try {
-				Thread.sleep(25);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-		panel.logo = false;
-		panel.repaint();
-	}
-
-	Panel getPanneau() {
-		return panel;
-	}
-
-	//Function to stop/play the sound
+	/**
+	 * Switch sound state between playing and stopped.
+	 */
 	public void switchSoundState() { // TODO Replace stop() by interrupt()
 		if (audio == null || !audio.isAlive()) {
 			audio = new Audio();

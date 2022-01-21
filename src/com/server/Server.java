@@ -7,40 +7,62 @@ import java.io.IOException;
 import java.net.*;
 import java.util.Arrays;
 
+/**
+ * The type Server.
+ */
 public class Server extends JFrame{
+	/**
+	 * The port used by the server.
+	 */
 	public static final int PORT = 9876;
 
+	/**
+	 * The score required to win.
+	 */
 	public static final int MAX_SCORE = 10;
 
-	private int currentPlayerCount;
+	/**
+	 * The current player count.
+	 */
+	private int playerCount;
 
+	/**
+	 * The Ball.
+	 */
 	private final ServerBall ball = new ServerBall();
 
+	/**
+	 * The Players.
+	 */
 	private final ServerPlayer[] players = new ServerPlayer[2];
 
-	private DatagramSocket socket;
+	/**
+	 * The Socket.
+	 */
+	private final DatagramSocket socket;
 
-	private Server() {
-		try {
-			this.setTitle("Server");
-			this.setResizable(false);
-			this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	/**
+	 * Instantiates a new Server.
+	 */
+	private Server() throws IOException {
+		this.setTitle("Server");
+		this.setResizable(false);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-			JLabel label = new JLabel(String.valueOf(InetAddress.getLocalHost()));
-			this.getContentPane().add(label);
+		JLabel label = new JLabel(String.valueOf(InetAddress.getLocalHost()));
+		this.getContentPane().add(label);
 
-			//Creation of the server side connexion while specifying which port to use
-			socket = new DatagramSocket(PORT);
-			run();
+		//Creation of the server side connexion while specifying which port to use
+		socket = new DatagramSocket(PORT);
+		run();
 
-			this.pack();
-			this.setVisible(true);
-		} catch (UnknownHostException | SocketException e) {
-			e.printStackTrace();
-			dispose();
-		}
+		this.pack();
+		this.setVisible(true);
 	}
 
+	/**
+	 * Move ball.
+	 */
 	private void moveBall() {
 		while (true) {
 			try {
@@ -53,12 +75,11 @@ public class Server extends JFrame{
 
 			ball.move();
 
-			if(currentPlayerCount == 2) {
-				//If Ball touch Stick from Player 1
+			if(playerCount == 2) {
+				//If Ball touch Stick from Player
 				if (ball.x <= 45 && ball.y + ball.radius >= players[0].y && ball.y + ball.radius <= players[0].y + Player.HEIGHT) {
 					ball.xSpeed *= -1;
 					ball.x += 10;
-				//If Ball touch Stick from Player 2
 				} else if (ball.x >= 1390 && ball.y + ball.radius >= players[1].y && ball.y + ball.radius <= players[1].y + Player.HEIGHT) {
 					ball.xSpeed *= -1;
 					ball.x -= 10;
@@ -87,6 +108,9 @@ public class Server extends JFrame{
 		}
 	}
 
+	/**
+	 * Receive inputs.
+	 */
 	private void receiveInputs() {
 		byte[] buffer = new byte[1];
 		DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
@@ -100,9 +124,12 @@ public class Server extends JFrame{
 			}
 
 			//Creating Player1 / Player2
-			if (currentPlayerCount == 0 || (currentPlayerCount == 1 && !players[1].isAddressIdentical(packet.getAddress()))) {
-				players[currentPlayerCount++] = new ServerPlayer(packet.getAddress(), packet.getPort());
-				System.out.println("Set player " + currentPlayerCount + " to : " + packet.getAddress() + " || players = " + currentPlayerCount);
+			if (playerCount == 0 || (playerCount == 1 && !players[1].isAddressIdentical(packet.getAddress()))) {
+				players[playerCount++] = new ServerPlayer(packet.getAddress(), packet.getPort());
+				System.out.println("Set player " + playerCount + " to : " + packet.getAddress() + " || players = " + playerCount);
+
+				//Thread for ball position and calculations
+				if (playerCount == 2) new Thread(this::moveBall).start();
 			}
 
 			//Usage of user input
@@ -124,6 +151,9 @@ public class Server extends JFrame{
 		}
 	}
 
+	/**
+	 * Update clients.
+	 */
 	private void updateClients() {
 		String str = players[0].y + "-" + players[1].y + "-" + ball.x + "-" + ball.y + "-" + players[0].score + "-" + players[1].score + "-" + 0;
 		byte[] buffer = (str).getBytes();
@@ -145,14 +175,23 @@ public class Server extends JFrame{
 		}
 	}
 
+	/**
+	 * Start listening for user inputs.
+	 */
 	public void run() {
-		//Thread for ball position and calculations
-		new Thread(this::moveBall).start();
-		//Thread for users input
 		new Thread(this::receiveInputs).start();
 	}
 
+	/**
+	 * The entry point of application.
+	 *
+	 * @param args the input arguments
+	 */
 	public static void main(String[] args) {
-		new Server();
+		try {
+			new Server();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

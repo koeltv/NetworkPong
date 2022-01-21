@@ -2,10 +2,33 @@ package com.server;
 
 import com.Ball;
 
+/**
+ * The type Server ball.
+ */
 public class ServerBall extends Ball {
-	int xSpeed = 7, ySpeed = 6;
-	private int xSpeedCoefficient = 1, ySpeedCoefficient = 1;
+	/**
+	 * The X speed.
+	 */
+	int xSpeed = 7;
 
+	/**
+	 * The Y speed.
+	 */
+	int ySpeed = 6;
+
+	/**
+	 * The X speed coefficient.
+	 */
+	private int xSpeedCoefficient = 1;
+
+	/**
+	 * The Y speed coefficient.
+	 */
+	private int ySpeedCoefficient = 1;
+
+	/**
+	 * Move the ball 1 time.
+	 */
 	public void move() {
 		if(xSpeed < 0) x += xSpeed - xSpeedCoefficient;
 		if(xSpeed >= 0) x += xSpeed + xSpeedCoefficient;
@@ -16,6 +39,9 @@ public class ServerBall extends Ball {
 		ySpeedCoefficient *= 1.002;
 	}
 
+	/**
+	 * Reset the ball to its original position.
+	 */
 	public void reset() {
 		xSpeedCoefficient = 1;
 		ySpeedCoefficient = 1;
