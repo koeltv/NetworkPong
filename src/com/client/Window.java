@@ -4,7 +4,7 @@ import javax.swing.*;
 
 class Window extends JFrame {
 	private final Panel panel = new Panel();
-	private Audio audio = new Audio();
+	Audio audio = new Audio();
 
 	Window() {
 		super();
@@ -15,13 +15,9 @@ class Window extends JFrame {
 		this.setContentPane(panel);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setVisible(true);
-
-		//Start the music
-		audio.start();
-		displayLogo();
 	}
 
-	private void displayLogo(){
+	void displayLogo() {
 		int x = panel.getPosXLog(), y = panel.getPosYLog();
 		while (y < 501) {
 			if (x > 780) {

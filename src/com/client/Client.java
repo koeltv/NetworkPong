@@ -2,6 +2,7 @@ package com.client;
 
 import com.server.Server;
 
+import javax.swing.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
@@ -11,7 +12,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public class Client extends Window implements Runnable {
-	public static final boolean joue = true;
+	public static final boolean play = true;
 
 	private final InetAddress serverAddress;
 
@@ -31,17 +32,15 @@ public class Client extends Window implements Runnable {
 		}
 	}
 
-	Client() {
+	Client() throws UnknownHostException {
 		super();
 
-		InetAddress localhost1;
-		try {
-			localhost1 = InetAddress.getByName("localhost");
-		} catch (UnknownHostException e) {
-			localhost1 = null;
-			e.printStackTrace();
-		}
-		serverAddress = localhost1;
+		String input = JOptionPane.showInputDialog(
+				"Enter server IP address",
+				"Server IP"
+		);
+		if (input == null) System.exit(0);
+		serverAddress = InetAddress.getByName(input);
 
 		this.addKeyListener(new KeyAdapter() {
 			@Override
@@ -53,13 +52,17 @@ public class Client extends Window implements Runnable {
 				}
 			}
 		});
+
+		//Start the music and display the logo animation
+		audio.start();
+		displayLogo();
 	}
 
 	@Override
 	public void run() {
 		try {
 			while (!Thread.interrupted()) {
-				if (joue) {
+				if (play) {
 					DatagramSocket socket = new DatagramSocket();
 					//We wait for the server answer
 					byte[] buffer = new byte[128];
@@ -86,7 +89,11 @@ public class Client extends Window implements Runnable {
 	}
 
 	public static void main(String[] args) {
-		Thread client = new Thread(new Client());
-		client.start();
+		try {
+			Thread client = new Thread(new Client());
+			client.start();
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
 	}
 }

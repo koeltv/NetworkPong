@@ -31,7 +31,7 @@ public class Panel extends JPanel {
 			if (image != null) g.drawImage(image, 600, 350, this);
 			g.setColor(lightYellow);
 			g.fillOval(posXLog, posYLog, 25, 25);
-		} else if (Client.joue) {
+		} else if (Client.play) {
 			super.paintComponent(g);
 
 			g.setColor(Color.white);
